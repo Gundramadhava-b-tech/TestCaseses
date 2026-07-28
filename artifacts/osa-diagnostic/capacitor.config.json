@@ -1,0 +1,5 @@
+{
+  "appId": "com.osa.diagnostic",
+  "appName": "osa-diagnostic",
+  "webDir": "dist/public"
+}

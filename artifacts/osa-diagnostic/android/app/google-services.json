@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "290989544259",
+    "project_id": "madhava-d298a",
+    "storage_bucket": "madhava-d298a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:290989544259:android:6fbf6a82b9315ee42615f6",
+        "android_client_info": {
+          "package_name": "com.osa.diagnostic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "290989544259-eaifkrbujvaf34c009651f6efs1qt2cc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBM1U98nRcfUceq8LlSf-MH0rSBbOF4VJI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "290989544259-eaifkrbujvaf34c009651f6efs1qt2cc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
