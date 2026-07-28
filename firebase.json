@@ -1,6 +1,12 @@
 {
   "auth": {
-    "port": 9099
+    "providers": {
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "AeroDiag",
+        "supportEmail": "madhavaguru759@gmail.com"
+      }
+    }
   },
   "emulators": {
     "auth": {
@@ -11,5 +17,11 @@
       "port": 4000
     },
     "singleProjectMode": true
+  },
+  "firestore": {
+    "database": "(default)",
+    "location": "nam5",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   }
 }
