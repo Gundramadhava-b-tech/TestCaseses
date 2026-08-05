@@ -53,6 +53,17 @@ jobs:
       - name: Run Web Frontend E2E Test Suite
         run: node tests/web_e2e_test.js
 
+  backend-api-tests:
+    name: Backend API Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run Backend API Test Suite
+        run: node tests/backend_api_test.js
+
   appium-mobile-tests:
     name: Appium Mobile Tests
     runs-on: ubuntu-latest
@@ -90,7 +101,7 @@ jobs:
 
   verify-all:
     name: "Verify All — 300 Web + 300 Android + 300 Backend"
-    needs: [selenium-e2e-web-tests, appium-mobile-tests, k6-load-test]
+    needs: [selenium-e2e-web-tests, backend-api-tests, appium-mobile-tests, k6-load-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -99,3 +110,4 @@ jobs:
           node-version: '20'
       - name: Generate AeroDiag Comprehensive Verification Dashboard
         run: node tests/generate_dashboard_summary.js
+
