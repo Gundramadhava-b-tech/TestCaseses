@@ -178,10 +178,13 @@ jobs:
     name: "🌐 Deploy to GitHub Pages"
     needs: compile-master-report
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
         continue-on-error: true
-      - name: Verify Green Deployment Status
-        run: echo "GitHub Pages deployment process completed."
+      - name: Verify Deployment Link Output
+        run: echo "GitHub Pages site URL: ${{ steps.deployment.outputs.page_url }}"
