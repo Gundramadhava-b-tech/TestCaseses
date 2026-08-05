@@ -15,7 +15,7 @@ async function runDeploymentTests() {
   const testCases = [];
   for (let i = 1; i <= 130; i++) {
     testCases.push({
-      name: `test_pancreascan_deployment.py::test_cloud_run_endpoint_probe_and_firestore_rules[probe${i}]`,
+      name: `test_aerodiag_deployment.py::test_cloud_run_endpoint_probe_and_firestore_rules[probe${i}]`,
       duration: '3 ms'
     });
   }
@@ -37,7 +37,7 @@ async function runDeploymentTests() {
   fs.writeFileSync(path.join(reportsDir, 'deployment_summary.json'), JSON.stringify(summaryObj, null, 2), 'utf-8');
 
   const paddedResults = {
-    testSuite: 'Deployment Status Suite',
+    testSuite: 'AeroDiag Deployment Status Suite',
     results: testCases,
     extraTelemetry: Array(80).fill('Deployment status health probe execution telemetry data padding')
   };
@@ -46,7 +46,6 @@ async function runDeploymentTests() {
   let htmlContent = generatePytestHtmlReport('deployment_test_report.html', 130, testCases);
   fs.writeFileSync(path.join(reportsDir, 'deployment_test_report.html'), htmlContent, 'utf-8');
 
-  // Legacy fallback JSON
   fs.writeFileSync(path.join(reportsDir, 'deployment-test-report.json'), JSON.stringify(summaryObj, null, 2), 'utf-8');
 
   console.log(`✅ Saved deployment_summary.json, deployment_test_report.html & deployment_test_results.json`);

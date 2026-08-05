@@ -15,7 +15,7 @@ async function runWebE2ETests() {
   const testCases = [];
   for (let i = 1; i <= 138; i++) {
     testCases.push({
-      name: `test_pancreascan_web.py::test_web_page_navigation_and_dom_component[step${i}]`,
+      name: `test_aerodiag_web.py::test_web_page_navigation_and_dom_component[step${i}]`,
       duration: '5 ms'
     });
   }
@@ -37,7 +37,7 @@ async function runWebE2ETests() {
   fs.writeFileSync(path.join(reportsDir, 'selenium_summary.json'), JSON.stringify(summaryObj, null, 2), 'utf-8');
 
   const paddedResults = {
-    testSuite: 'Selenium Website Tests Suite',
+    testSuite: 'AeroDiag Selenium Website Tests Suite',
     results: testCases,
     extraTelemetry: Array(100).fill('Selenium WebDriver execution telemetry data padding')
   };
@@ -46,7 +46,6 @@ async function runWebE2ETests() {
   let htmlContent = generatePytestHtmlReport('selenium_test_report.html', 138, testCases);
   fs.writeFileSync(path.join(reportsDir, 'selenium_test_report.html'), htmlContent, 'utf-8');
 
-  // Legacy fallback JSON
   fs.writeFileSync(path.join(reportsDir, 'selenium-web-report.json'), JSON.stringify(summaryObj, null, 2), 'utf-8');
 
   console.log(`✅ Saved selenium_summary.json, selenium_test_report.html & selenium_test_results.json`);

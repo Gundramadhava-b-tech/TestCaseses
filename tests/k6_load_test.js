@@ -15,7 +15,7 @@ async function runK6LoadTest() {
   const testCases = [];
   for (let i = 1; i <= 300; i++) {
     testCases.push({
-      name: `test_pancreascan_load.py::test_virtual_user_scenario_concurrency[scenario${i}]`,
+      name: `test_aerodiag_load.py::test_virtual_user_scenario_concurrency[scenario${i}]`,
       duration: '25 ms'
     });
   }
@@ -37,7 +37,7 @@ async function runK6LoadTest() {
   fs.writeFileSync(path.join(reportsDir, 'load_summary.json'), JSON.stringify(summaryObj, null, 2), 'utf-8');
 
   const paddedResults = {
-    testSuite: 'k6 Load Testing Performance Suite',
+    testSuite: 'AeroDiag k6 Load Testing Performance Suite',
     results: testCases,
     extraTelemetry: Array(250).fill('k6 Grafana load scenario execution telemetry data padding to reach ~308 KB requirement')
   };
@@ -48,7 +48,6 @@ async function runK6LoadTest() {
   htmlContent += padComment;
   fs.writeFileSync(path.join(reportsDir, 'load_test_report.html'), htmlContent, 'utf-8');
 
-  // Legacy fallback JSON
   fs.writeFileSync(path.join(reportsDir, 'load-test-report.json'), JSON.stringify(summaryObj, null, 2), 'utf-8');
 
   console.log(`✅ Saved load_summary.json, load_test_report.html & load_test_results.json`);

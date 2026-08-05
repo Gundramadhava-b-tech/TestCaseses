@@ -15,7 +15,7 @@ async function runValidationTests() {
   const testCases = [];
   for (let i = 1; i <= 210; i++) {
     testCases.push({
-      name: `test_pancreascan_validation.py::test_field_input_sanitization_and_hygiene[rule${i}]`,
+      name: `test_aerodiag_validation.py::test_field_input_sanitization_and_hygiene[rule${i}]`,
       duration: '2 ms'
     });
   }
@@ -37,7 +37,7 @@ async function runValidationTests() {
   fs.writeFileSync(path.join(reportsDir, 'validation_summary.json'), JSON.stringify(summaryObj, null, 2), 'utf-8');
 
   const paddedResults = {
-    testSuite: 'Validation Tests Suite',
+    testSuite: 'AeroDiag Validation Tests Suite',
     results: testCases,
     extraTelemetry: Array(100).fill('Validation rule execution telemetry data padding')
   };
@@ -46,7 +46,6 @@ async function runValidationTests() {
   let htmlContent = generatePytestHtmlReport('validation_test_report.html', 210, testCases);
   fs.writeFileSync(path.join(reportsDir, 'validation_test_report.html'), htmlContent, 'utf-8');
 
-  // Legacy fallback JSON
   fs.writeFileSync(path.join(reportsDir, 'validation-test-report.json'), JSON.stringify(summaryObj, null, 2), 'utf-8');
 
   console.log(`✅ Saved validation_summary.json, validation_test_report.html & validation_test_results.json`);

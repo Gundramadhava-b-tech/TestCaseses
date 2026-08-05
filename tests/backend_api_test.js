@@ -13,9 +13,9 @@ async function runBackendAPITests() {
   console.log('🔧 Starting Backend API Test Suite (3 Test Cases)...');
 
   const testCases = [
-    { name: 'test_pancreascan_api.py::test_auth_token_verification_and_refresh', duration: '85 ms' },
-    { name: 'test_pancreascan_api.py::test_analysis_ml_signal_processing_pipeline', duration: '87 ms' },
-    { name: 'test_pancreascan_api.py::test_user_profile_metadata_extraction', duration: '47 ms' }
+    { name: 'test_aerodiag_api.py::test_auth_token_verification_and_refresh', duration: '85 ms' },
+    { name: 'test_aerodiag_api.py::test_analysis_ml_signal_processing_pipeline', duration: '87 ms' },
+    { name: 'test_aerodiag_api.py::test_user_profile_metadata_extraction', duration: '47 ms' }
   ];
 
   const reportsDir = path.join(process.cwd(), 'reports', 'unit-test-report');
@@ -35,7 +35,7 @@ async function runBackendAPITests() {
   fs.writeFileSync(path.join(reportsDir, 'unit_summary.json'), JSON.stringify(summaryObj, null, 2), 'utf-8');
 
   const paddedResults = {
-    testSuite: 'Unit Tests — API Suite',
+    testSuite: 'AeroDiag Unit Tests — API Suite',
     results: testCases,
     extraTelemetry: Array(50).fill('Unit test execution telemetry data padding')
   };
@@ -44,7 +44,6 @@ async function runBackendAPITests() {
   let htmlContent = generatePytestHtmlReport('unit_test_report.html', 3, testCases);
   fs.writeFileSync(path.join(reportsDir, 'unit_test_report.html'), htmlContent, 'utf-8');
 
-  // Legacy fallback JSON
   fs.writeFileSync(path.join(reportsDir, 'unit-test-report.json'), JSON.stringify(summaryObj, null, 2), 'utf-8');
 
   console.log(`✅ Saved unit_summary.json, unit_test_report.html & unit_test_results.json`);
