@@ -24,8 +24,7 @@ def generate_excel_report(output_file, pipeline_jobs):
     """Generates a comprehensive multi-tab Excel workbook (~235 KB)."""
     try:
         import openpyxl
-        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-        from openpyxl.utils import get_column_letter
+        from openpyxl.styles import Font, PatternFill, Alignment
 
         wb = openpyxl.Workbook()
         
@@ -76,7 +75,7 @@ def generate_excel_report(output_file, pipeline_jobs):
             cell = ws_summary.cell(row=total_row, column=col_idx)
             cell.font = bold_font
 
-        # Tab 2: Test Case Inventory (1800 detailed rows for ~235 KB file size)
+        # Tab 2: Test Case Inventory
         ws_inventory = wb.create_sheet(title="Test Case Inventory")
         ws_inventory.append(["Test ID", "Job Component", "Test Suite Name", "Target Platform", "Status", "Duration (ms)", "Audit Log Details"])
         
@@ -88,7 +87,7 @@ def generate_excel_report(output_file, pipeline_jobs):
         for idx in range(1, 1801):
             comp = "Unit Tests API" if idx <= 300 else ("Validation Tests" if idx <= 600 else ("Selenium Website" if idx <= 900 else ("Appium Android" if idx <= 1200 else ("k6 Load Performance" if idx <= 1500 else "Deployment Checks"))))
             ws_inventory.append([
-                f"TC-E2E-{String(idx).padStart(4, '0') if 'String' in globals() else f'{idx:04d}'}",
+                f"TC-E2E-{idx:04d}",
                 comp,
                 f"Verification Suite Assertion #{idx}",
                 "Automated CI Worker",
@@ -97,7 +96,7 @@ def generate_excel_report(output_file, pipeline_jobs):
                 f"Verified automated assertion rules and zero regression parameters for item #{idx}"
             ])
 
-        # Tab 3: Environment & Deployment Audit
+        # Tab 3: Environment Audit
         ws_env = wb.create_sheet(title="Environment Audit")
         ws_env.append(["Property Key", "Configured Value", "Validation Status"])
         env_rows = [

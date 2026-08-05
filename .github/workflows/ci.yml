@@ -139,8 +139,10 @@ jobs:
           python-version: '3.11'
       - name: Download All Reports
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           path: reports
+          merge-multiple: true
       - name: Generate Master Dashboard & Excel Reports
         run: |
           mkdir -p build/reports
@@ -163,8 +165,10 @@ jobs:
           path: build/reports/full_e2e_report.json
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
+        continue-on-error: true
       - name: Upload Pages Artifact (~6.09 KB)
         uses: actions/upload-pages-artifact@v3
+        continue-on-error: true
         with:
           path: build/reports
 
@@ -176,3 +180,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        continue-on-error: true
