@@ -1,4 +1,4 @@
-name: CI/CD & Automated Verification Pipeline
+name: ci.yml
 
 on:
   push:
@@ -18,115 +18,115 @@ concurrency:
 
 jobs:
   unit-tests-api:
-    name: Unit Tests — API (300)
+    name: "🧪 Unit Tests — API (300)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Run Unit Tests & API Suite (300 Test Cases)
+      - name: Run Unit Tests & API Suite
         run: |
           mkdir -p reports
           node tests/backend_api_test.js
-      - name: Upload Unit Test Report Artifact (~9.31 KB)
+      - name: Upload Unit Test Report
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-report
           path: reports/unit-test-report.json
 
   validation-tests:
-    name: Validation Tests (300)
+    name: "✅ Validation Tests (300)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Run Validation Test Suite (300 Test Cases)
+      - name: Run Validation Test Suite
         run: |
           mkdir -p reports
           node tests/validation_test.js
-      - name: Upload Validation Test Report Artifact (~32.9 KB)
+      - name: Upload Validation Test Report
         uses: actions/upload-artifact@v4
         with:
           name: validation-test-report
           path: reports/validation-test-report.json
 
   selenium-website-tests:
-    name: Selenium — Website Tests (300)
+    name: "🌐 Selenium — Website Tests (300)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Run Selenium Website E2E Tests (300 Test Cases)
+      - name: Run Selenium Website E2E Tests
         run: |
           mkdir -p reports
           node tests/web_e2e_test.js
-      - name: Upload Selenium Web Report Artifact (~19.5 KB)
+      - name: Upload Selenium Web Report
         uses: actions/upload-artifact@v4
         with:
           name: selenium-web-report
           path: reports/selenium-web-report.json
 
   appium-android-tests:
-    name: Appium — Android Tests (300)
+    name: "📱 Appium — Android Tests (300)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Run Appium Android E2E Tests (300 Test Cases)
+      - name: Run Appium Android E2E Tests
         run: |
           mkdir -p reports
           node tests/mobile_e2e_test.js
-      - name: Upload Appium Android Report Artifact (~16.3 KB)
+      - name: Upload Appium Android Report
         uses: actions/upload-artifact@v4
         with:
           name: appium-android-report
           path: reports/appium-android-report.json
 
   load-testing-performance:
-    name: Load Testing — Performance (300)
+    name: "⚡ Load Testing — Performance (300)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Run k6 Performance Load Tests (300 Scenarios)
+      - name: Run k6 Performance Load Tests
         run: |
           mkdir -p reports
           node tests/k6_load_test.js
-      - name: Upload Load Test Report Artifact (~308 KB)
+      - name: Upload Load Test Report
         uses: actions/upload-artifact@v4
         with:
           name: load-test-report
           path: reports/load-test-report.json
 
   deployment-status:
-    name: Deployment Status (300)
+    name: "🚀 Deployment Status (300)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Verify Live Deployment Status (300 Checks)
+      - name: Verify Live Deployment Status
         run: |
           mkdir -p reports
           node tests/deployment_test.js
-      - name: Upload Deployment Test Report Artifact (~20.1 KB)
+      - name: Upload Deployment Test Report
         uses: actions/upload-artifact@v4
         with:
           name: deployment-test-report
           path: reports/deployment-test-report.json
 
   compile-master-report:
-    name: Compile Master Report & Deploy
+    name: "📊 Compile Master Report & Deploy"
     needs: [unit-tests-api, validation-tests, selenium-website-tests, appium-android-tests, load-testing-performance, deployment-status]
     runs-on: ubuntu-latest
     steps:
@@ -180,7 +180,7 @@ jobs:
           path: build/reports
 
   deploy-to-github-pages:
-    name: Deploy to GitHub Pages
+    name: "🌐 Deploy to GitHub Pages"
     needs: compile-master-report
     runs-on: ubuntu-latest
     steps:
