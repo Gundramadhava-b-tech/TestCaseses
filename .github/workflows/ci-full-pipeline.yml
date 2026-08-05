@@ -1,22 +1,17 @@
-name: ci-full-pipeline.yml
+name: Scale E2E suites to 1800 test cases
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ "main", "master", "develop" ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ "main", "master" ]
   workflow_dispatch:
     inputs:
       generate_excel_report:
-        description: "Generate Master Excel Report with test cases row-by-row"
+        description: "Generate Master Excel Report with 1,800 test cases row-by-row"
         required: false
         type: boolean
         default: true
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -28,19 +23,25 @@ env:
   JAVA_VERSION: "17"
 
 jobs:
-  unit-tests-api:
+  unit-tests:
     name: "🧪 Unit Tests — API (300)"
     runs-on: ubuntu-latest
     timeout-minutes: 15
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+
       - name: Run Unit Tests & API Suite
         run: |
           mkdir -p reports/unit-test-report
           node tests/backend_api_test.js
+
       - name: Upload unit-test-report artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -53,15 +54,21 @@ jobs:
     name: "✅ Validation Tests (300)"
     runs-on: ubuntu-latest
     timeout-minutes: 20
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+
       - name: Run Validation Test Suite
         run: |
           mkdir -p reports/validation-test-report
           node tests/validation_test.js
+
       - name: Upload validation-test-report artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -70,19 +77,25 @@ jobs:
           path: reports/validation-test-report/
           retention-days: 30
 
-  selenium-website-tests:
+  selenium-tests:
     name: "🌐 Selenium — Website Tests (300)"
     runs-on: ubuntu-latest
     timeout-minutes: 20
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+
       - name: Run Selenium Website E2E Tests
         run: |
           mkdir -p reports/selenium-web-report
           node tests/web_e2e_test.js
+
       - name: Upload selenium-web-report artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -91,19 +104,25 @@ jobs:
           path: reports/selenium-web-report/
           retention-days: 30
 
-  appium-android-tests:
+  appium-tests:
     name: "📱 Appium — Android Tests (300)"
     runs-on: ubuntu-latest
     timeout-minutes: 30
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+
       - name: Run Appium Android E2E Tests
         run: |
           mkdir -p reports/appium-android-report
           node tests/mobile_e2e_test.js
+
       - name: Upload appium-android-report artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -112,19 +131,25 @@ jobs:
           path: reports/appium-android-report/
           retention-days: 30
 
-  load-testing-performance:
+  load-tests:
     name: "⚡ Load Testing — Performance (300)"
     runs-on: ubuntu-latest
     timeout-minutes: 15
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+
       - name: Run k6 Performance Load Tests
         run: |
           mkdir -p reports/load-test-report
           node tests/k6_load_test.js
+
       - name: Upload load-test-report artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -133,19 +158,25 @@ jobs:
           path: reports/load-test-report/
           retention-days: 30
 
-  deployment-status:
+  deployment-tests:
     name: "🚀 Deployment Status (300)"
     runs-on: ubuntu-latest
     timeout-minutes: 15
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+
       - name: Verify Live Deployment Status
         run: |
           mkdir -p reports/deployment-test-report
           node tests/deployment_test.js
+
       - name: Upload deployment-test-report artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -154,70 +185,88 @@ jobs:
           path: reports/deployment-test-report/
           retention-days: 30
 
-  compile-master-report:
+  compile-report:
     name: "📊 Compile Master Report & Deploy"
-    needs: [unit-tests-api, validation-tests, selenium-website-tests, appium-android-tests, load-testing-performance, deployment-status]
     runs-on: ubuntu-latest
+    needs: [unit-tests, validation-tests, selenium-tests, appium-tests, load-tests, deployment-tests]
     if: always()
     timeout-minutes: 10
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - uses: actions/setup-python@v5
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
       - name: Download all test artifacts
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           path: reports
           merge-multiple: true
+
+      - name: Install reporting dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install openpyxl
+
       - name: Generate Master Dashboard & Excel Reports
         run: |
           mkdir -p build/reports
-          python -m pip install --upgrade pip
-          pip install openpyxl
           python .github/scripts/compile_master_report.py
           node tests/generate_dashboard_summary.js
           if [ ! -f "build/reports/index.html" ]; then
             cp build/reports/master_report.html build/reports/index.html || echo "<h1>AeroDiag Test Dashboard</h1>" > build/reports/index.html
           fi
+
+      - name: Upload full-e2e-report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-e2e-report
+          path: build/reports/
+          retention-days: 90
+
       - name: Upload master-excel-report artifact
         uses: actions/upload-artifact@v4
         with:
           name: master-excel-report
           path: build/reports/master_report.xlsx
           retention-days: 90
-      - name: Upload full-e2e-report artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: full-e2e-report
-          path: build/reports/full_e2e_report.json
-          retention-days: 90
+
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
         continue-on-error: true
         with:
           enablement: true
+
       - name: Upload to GitHub Pages
         uses: actions/upload-pages-artifact@v3
         continue-on-error: true
         with:
           path: build/reports
 
-  deploy-to-github-pages:
+  deploy-pages:
     name: "🌍 Deploy to GitHub Pages"
-    needs: compile-master-report
     runs-on: ubuntu-latest
+    needs: compile-report
     timeout-minutes: 10
+
     permissions:
       pages: write
       id-token: write
+
     environment:
       name: github-pages
       url: https://gundramadhava-b-tech.github.io/TestCaseses/
+
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
