@@ -95,11 +95,28 @@ export default function Dashboard() {
   }
 
   if (isError || !stats) {
+    const currentApiUrl = (typeof localStorage !== "undefined" && localStorage.getItem("settings_api_url")) || "http://10.51.43.26:3000";
     return (
-      <div className="flex flex-col items-center justify-center h-[60vh] text-center">
-        <Activity className="w-12 h-12 text-destructive mb-4" />
+      <div className="flex flex-col items-center justify-center h-[60vh] text-center p-6">
+        <Activity className="w-12 h-12 text-destructive mb-4 animate-pulse" />
         <h2 className="text-xl font-bold font-display text-foreground">Failed to load statistics</h2>
-        <p className="text-muted-foreground mt-2">Make sure the API server is running.</p>
+        <p className="text-muted-foreground mt-2 text-sm max-w-md">
+          Make sure the backend API server is running at <code className="bg-secondary px-2 py-0.5 rounded text-foreground font-mono text-xs">{currentApiUrl}</code>.
+        </p>
+        <div className="flex flex-wrap gap-3 mt-6 justify-center">
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-all shadow-md"
+          >
+            Retry Connection
+          </button>
+          <Link
+            to="/settings"
+            className="px-6 py-2.5 rounded-xl border border-border bg-card text-foreground font-bold text-sm hover:bg-secondary transition-all"
+          >
+            Change API Server
+          </Link>
+        </div>
       </div>
     );
   }

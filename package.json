@@ -5,7 +5,12 @@
   "scripts": {
     "dev": "pnpm --filter @workspace/osa-diagnostic run dev",
     "dev:backend": "pnpm --filter @workspace/api-server run dev",
-    "build": "pnpm --filter @workspace/osa-diagnostic run build"
+    "build": "pnpm --filter @workspace/osa-diagnostic run build",
+    "test": "node tests/generate_dashboard_summary.js",
+    "test:web": "node tests/web_e2e_test.js",
+    "test:mobile": "node tests/mobile_e2e_test.js",
+    "test:backend": "node tests/backend_api_test.js",
+    "test:load": "node tests/k6_load_test.js"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

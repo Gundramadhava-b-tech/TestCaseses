@@ -1,4 +1,4 @@
-package com.osa.diagnostic;
+package com.aerodiag.app;
 
 import com.getcapacitor.BridgeActivity;
 

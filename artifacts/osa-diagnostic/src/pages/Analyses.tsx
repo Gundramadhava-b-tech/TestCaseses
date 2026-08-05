@@ -5,13 +5,16 @@ import { SeverityBadge } from "@/components/SeverityBadge";
 import { format } from "date-fns";
 import { safeFormatDate } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Activity, FileText, Download } from "lucide-react";
+import { Activity, FileText, Download, Eye } from "lucide-react";
 import { generateReport } from "@/lib/generateReport";
 import { usePreferences } from "@/components/PreferenceContext";
 import { t } from "@/lib/translations";
+import { ScanViewerModal } from "@/components/ScanViewerModal";
 
 export default function Analyses() {
   const [severityFilter, setSeverityFilter] = useState<ListAnalysesSeverity | "ALL">("ALL");
+  const [selectedPatientName, setSelectedPatientName] = useState<string | undefined>(undefined);
+  const [viewerOpen, setViewerOpen] = useState(false);
   const { language } = usePreferences();
   
   const { data: analyses = [], isLoading } = useListAnalyses(
@@ -20,8 +23,19 @@ export default function Analyses() {
 
   const isCm2 = localStorage.getItem("settings_unit") === "cm2";
 
+  const handleOpenViewer = (patientName?: string) => {
+    setSelectedPatientName(patientName);
+    setViewerOpen(true);
+  };
+
   return (
     <div className="space-y-6">
+      <ScanViewerModal
+        open={viewerOpen}
+        onOpenChange={setViewerOpen}
+        patientName={selectedPatientName || "Patient Scan"}
+      />
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="section-header">
           <div className="text-xs font-semibold text-muted-foreground mb-1 tracking-widest uppercase">{t("home")} / {t("analysis_results")}</div>
@@ -83,7 +97,7 @@ export default function Analyses() {
                 <th className="px-6 py-4 font-semibold">{isCm2 ? t("area") + " (cm²)" : t("area") + " (mm²)"}</th>
                 <th className="px-6 py-4 font-semibold">{t("volume")} (mm³)</th>
                 <th className="px-6 py-4 font-semibold">{t("constriction")}</th>
-                <th className="px-6 py-4 font-semibold text-right">{t("report")}</th>
+                <th className="px-6 py-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -129,14 +143,24 @@ export default function Analyses() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button
-                        title="Download PDF Report"
-                        onClick={() => generateReport(analysis)}
-                        className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200 inline-flex items-center gap-1.5 border border-primary/20 hover:border-primary shadow-sm"
-                      >
-                        <Download className="w-4 h-4" />
-                        <span className="text-xs font-semibold">PDF</span>
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          title="View CBCT Scan Images"
+                          onClick={() => handleOpenViewer(analysis.patientName)}
+                          className="p-2 rounded-lg bg-teal-500/10 text-teal-600 hover:bg-teal-500 hover:text-slate-950 transition-all duration-200 inline-flex items-center gap-1 border border-teal-500/20 shadow-sm"
+                        >
+                          <Eye className="w-4 h-4" />
+                          <span className="text-xs font-semibold">Scan</span>
+                        </button>
+                        <button
+                          title="Download PDF Report"
+                          onClick={() => generateReport(analysis)}
+                          className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200 inline-flex items-center gap-1 border border-primary/20 hover:border-primary shadow-sm"
+                        >
+                          <Download className="w-4 h-4" />
+                          <span className="text-xs font-semibold">PDF</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

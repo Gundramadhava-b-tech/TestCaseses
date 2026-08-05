@@ -74,10 +74,10 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
-      <Route path="/sign-up" component={SignUpPage} />
       <Route path="/sign-in" component={SignInPage} />
+      <Route path="/login" component={SignInPage} />
+      <Route path="/sign-up" component={SignUpPage} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
-      <Route path="/sign-up/verify-email" component={VerifyEmailPage} />
 
       <Route path="/dashboard" component={ProtectedWithLayout(Dashboard)} />
       <Route path="/patients" component={ProtectedWithLayout(Patients)} />

@@ -9,10 +9,55 @@
       "client_info": {
         "mobilesdk_app_id": "1:290989544259:android:6fbf6a82b9315ee42615f6",
         "android_client_info": {
+          "package_name": "com.aerodiag.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "290989544259-6ptnu2o1qjsvg766s19a97hvn6rfum60.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aerodiag.app",
+            "certificate_hash": "2e9ae1a79eb6afb8979590a58d87b0bfd040ccfa"
+          }
+        },
+        {
+          "client_id": "290989544259-eaifkrbujvaf34c009651f6efs1qt2cc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBM1U98nRcfUceq8LlSf-MH0rSBbOF4VJI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "290989544259-eaifkrbujvaf34c009651f6efs1qt2cc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:290989544259:android:6fbf6a82b9315ee42615f6",
+        "android_client_info": {
           "package_name": "com.osa.diagnostic"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "290989544259-6ptnu2o1qjsvg766s19a97hvn6rfum60.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.osa.diagnostic",
+            "certificate_hash": "2e9ae1a79eb6afb8979590a58d87b0bfd040ccfa"
+          }
+        },
         {
           "client_id": "290989544259-eaifkrbujvaf34c009651f6efs1qt2cc.apps.googleusercontent.com",
           "client_type": 3

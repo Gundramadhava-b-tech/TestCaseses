@@ -1,5 +1,8 @@
 {
-  "appId": "com.osa.diagnostic",
-  "appName": "osa-diagnostic",
-  "webDir": "dist/public"
+  "appId": "com.aerodiag.app",
+  "appName": "AeroDiag",
+  "webDir": "dist/public",
+  "server": {
+    "androidScheme": "http"
+  }
 }

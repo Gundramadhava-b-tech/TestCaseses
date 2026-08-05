@@ -25,6 +25,13 @@ function isUrl(input: RequestInfo | URL): input is URL {
   return typeof URL !== "undefined" && input instanceof URL;
 }
 
+function isAndroidEnvironment(): boolean {
+  if (typeof window === "undefined") return false;
+  const win = window as any;
+  if (win.Capacitor?.getPlatform() === "android") return true;
+  return typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
+}
+
 function resolveUrl(input: RequestInfo | URL): string {
   let url = "";
   if (typeof input === "string") {
@@ -36,7 +43,14 @@ function resolveUrl(input: RequestInfo | URL): string {
   }
 
   if (url.startsWith("/api/")) {
-    const apiBase = (import.meta.env?.VITE_API_URL as string | undefined) ?? "";
+    const customApiUrl = typeof localStorage !== "undefined" ? localStorage.getItem("settings_api_url") : null;
+    let apiBase = customApiUrl || ((import.meta as any).env?.VITE_API_URL as string | undefined);
+
+    if (!apiBase || apiBase.trim() === "" || apiBase === "http://10.0.2.2:3000") {
+      apiBase = "http://10.51.43.26:3000";
+    }
+
+    apiBase = apiBase.replace(/\/+$/, "");
     return `${apiBase}${url}`;
   }
   return url;
@@ -308,12 +322,38 @@ export async function customFetch<T = unknown>(
     headers.set("accept", DEFAULT_JSON_ACCEPT);
   }
 
+  const rawEndpoint = typeof input === "string" ? input : (isUrl(input) ? input.pathname : (isRequest(input) ? input.url : String(input)));
   const requestInfo = { method, url: resolveUrl(input) };
 
-  const response = await fetch(requestInfo.url, { ...init, method, headers });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+  const signal = init.signal || controller.signal;
+
+  let response: Response;
+  try {
+    response = await fetch(requestInfo.url, { ...init, method, headers, signal });
+  } catch (connectionErr: any) {
+    console.error("[AeroDiag API Logcat Error]", {
+      apiUrl: requestInfo.url,
+      endpoint: rawEndpoint,
+      statusCode: null,
+      connectionError: connectionErr?.name === "AbortError" ? "Connection timeout (8s)" : (connectionErr?.message || String(connectionErr)),
+      responseError: null,
+    });
+    throw connectionErr;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
     const errorData = await parseErrorBody(response, method);
+    console.error("[AeroDiag API Logcat Error]", {
+      apiUrl: requestInfo.url,
+      endpoint: rawEndpoint,
+      statusCode: response.status,
+      connectionError: null,
+      responseError: errorData,
+    });
     throw new ApiError(response, errorData, requestInfo);
   }
 

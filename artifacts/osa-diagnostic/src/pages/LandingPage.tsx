@@ -54,14 +54,9 @@ export default function LandingPage() {
         </Link>
         <div className="flex items-center gap-3">
           <Link href="/sign-in">
-            <button id="landing-sign-in-btn" className="px-5 py-2 rounded-xl text-sm font-semibold text-foreground/70 hover:text-foreground transition-colors">
-              Sign In
-            </button>
-          </Link>
-          <Link href="/sign-up">
-            <button id="landing-get-started-btn" className="px-5 py-2 rounded-xl text-sm font-semibold text-white shadow-sm hover:shadow-md transition-all"
+            <button id="landing-doctor-login-btn" className="px-6 py-2.5 rounded-xl text-sm font-bold text-white shadow-md hover:shadow-lg transition-all"
               style={{ background: "hsl(175, 100%, 32%)" }}>
-              Get Started
+              Doctor Portal Login
             </button>
           </Link>
         </div>
@@ -91,10 +86,10 @@ export default function LandingPage() {
           </p>
 
           <div className="flex items-center justify-center gap-4 flex-wrap">
-            <Link href="/sign-up">
+            <Link href="/sign-in">
               <button id="landing-start-free-btn" className="group flex items-center gap-2 px-8 py-3.5 rounded-2xl text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5"
                 style={{ background: "hsl(175, 100%, 32%)" }}>
-                Start Free Today
+                Doctor Portal Access (Dr. Devika Pillai)
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </Link>

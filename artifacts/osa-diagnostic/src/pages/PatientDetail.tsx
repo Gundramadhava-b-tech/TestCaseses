@@ -4,17 +4,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft, Mail, Phone, Calendar, User2, Activity, FileScan,
-  TrendingDown, AlertTriangle, Download, Sparkles, ChevronRight,
+  TrendingDown, AlertTriangle, Download, Sparkles, ChevronRight, Eye, Layers,
 } from "lucide-react";
 import { SeverityBadge } from "@/components/SeverityBadge";
 import { SEVERITY_COLORS } from "@/lib/constants";
 import { format } from "date-fns";
 import { safeFormatDate } from "@/lib/utils";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
 } from "recharts";
 import { generateReport } from "@/lib/generateReport";
+import { ScanViewerModal, PATIENT_SCAN_IMAGES } from "@/components/ScanViewerModal";
 
 const TimelineTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -32,6 +33,7 @@ export default function PatientDetail() {
   const params = useParams<{ id: string }>();
   const patientId = Number(params.id);
 
+  const [viewerOpen, setViewerOpen] = useState(false);
   const { data: patient, isLoading: loadingPatient, isError } = useGetPatient(patientId);
   const { data: analyses = [], isLoading: loadingAnalyses } = useListAnalyses({ patientId });
 
@@ -100,6 +102,13 @@ export default function PatientDetail() {
 
   return (
     <div className="space-y-6">
+      {/* Scan Viewer Modal */}
+      <ScanViewerModal
+        open={viewerOpen}
+        onOpenChange={setViewerOpen}
+        patientName={patient.name}
+      />
+
       {/* Breadcrumbs + back */}
       <div className="flex items-center justify-between">
         <Link href="/patients" className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-primary transition-colors uppercase tracking-widest">
@@ -175,12 +184,21 @@ export default function PatientDetail() {
               </div>
             </div>
 
-            {/* CTA */}
-            <Link href="/upload">
-              <Button className="rounded-xl h-11 px-5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg shadow-primary/25">
-                <FileScan className="w-4 h-4 mr-2" /> New Scan
+            {/* CTAs */}
+            <div className="flex items-center gap-3 shrink-0 flex-wrap">
+              <Button
+                onClick={() => setViewerOpen(true)}
+                variant="outline"
+                className="rounded-xl h-11 px-4 border-teal-500/40 text-teal-600 dark:text-teal-400 hover:bg-teal-500/10 font-semibold"
+              >
+                <Eye className="w-4 h-4 mr-2 text-teal-500" /> View CBCT Scans
               </Button>
-            </Link>
+              <Link href="/upload">
+                <Button className="rounded-xl h-11 px-5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg shadow-primary/25">
+                  <FileScan className="w-4 h-4 mr-2" /> New Scan
+                </Button>
+              </Link>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -274,6 +292,49 @@ export default function PatientDetail() {
         </CardContent>
       </Card>
 
+      {/* Patient Scan Images Grid */}
+      <Card className="glass-panel rounded-2xl overflow-hidden bg-card border border-border/50 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="font-display font-bold text-base text-foreground flex items-center gap-2">
+              <Layers className="w-4.5 h-4.5 text-teal-500" /> Patient CBCT Diagnostic Scans
+            </h3>
+            <p className="text-xs text-muted-foreground">High-resolution airway cross-sections and 3D volumetric analysis</p>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => setViewerOpen(true)}
+            className="rounded-xl text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white"
+          >
+            <Eye className="w-3.5 h-3.5 mr-1.5" /> Fullscreen Viewer
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {PATIENT_SCAN_IMAGES.map((img) => (
+            <div
+              key={img.id}
+              onClick={() => setViewerOpen(true)}
+              className="group relative rounded-xl overflow-hidden border border-border/60 bg-slate-950 aspect-video cursor-pointer hover:border-teal-500/60 transition-all shadow-sm hover:shadow-md"
+            >
+              <img
+                src={img.url}
+                alt={img.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90 group-hover:opacity-100"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent p-3 flex flex-col justify-between">
+                <span className="self-start text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-teal-500/80 text-slate-950">
+                  {img.type}
+                </span>
+                <p className="text-xs font-bold text-white line-clamp-1 group-hover:text-teal-300 transition-colors">
+                  {img.title}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
       {/* Scan History Table */}
       <Card className="glass-panel rounded-2xl overflow-hidden bg-card transition-colors duration-300">
         <CardHeader className="border-b border-border/40 pb-4">
@@ -295,11 +356,11 @@ export default function PatientDetail() {
                     <th className="px-6 py-3 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{isCm2 ? "Area cm²" : "Area mm²"}</th>
                     <th className="px-6 py-3 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Volume mm³</th>
                     <th className="px-6 py-3 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Constriction</th>
-                    <th className="px-6 py-3 text-[11px] font-bold text-muted-foreground uppercase tracking-widest text-right">Report</th>
+                    <th className="px-6 py-3 text-[11px] font-bold text-muted-foreground uppercase tracking-widest text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedAnalyses.map((a, i) => (
+                  {sortedAnalyses.map((a) => (
                     <tr key={a.id} className="border-b border-border/20 hover:bg-muted/10 transition-colors odd:bg-secondary/20">
                       <td className="px-6 py-4 text-foreground">
                         <div className="font-semibold">{safeFormatDate(a.analyzedAt, "MMM d, yyyy")}</div>
@@ -322,14 +383,25 @@ export default function PatientDetail() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => generateReport(a)}
-                          className="rounded-lg h-8 px-3 text-xs font-semibold border-border/60 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
-                        >
-                          <Download className="w-3.5 h-3.5 mr-1.5" /> PDF
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setViewerOpen(true)}
+                            className="rounded-lg h-8 px-2.5 text-xs font-semibold text-teal-600 hover:bg-teal-500/10"
+                            title="View Scan Images"
+                          >
+                            <Eye className="w-3.5 h-3.5 mr-1" /> View Scan
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => generateReport(a)}
+                            className="rounded-lg h-8 px-3 text-xs font-semibold border-border/60 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+                          >
+                            <Download className="w-3.5 h-3.5 mr-1.5" /> PDF
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -342,3 +414,4 @@ export default function PatientDetail() {
     </div>
   );
 }
+

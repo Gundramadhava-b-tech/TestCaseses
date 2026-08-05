@@ -1,16 +1,19 @@
 import { useState, useEffect } from "react";
-import { Sun, Moon, Globe, Sliders, Cpu, Bell, Check, Info } from "lucide-react";
+import { Sun, Moon, Globe, Sliders, Cpu, Bell, Check, Info, Server } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { usePreferences } from "@/components/PreferenceContext";
 import { t } from "@/lib/translations";
 
-type TabId = "theme" | "language" | "units" | "ai" | "notifications";
+type TabId = "theme" | "language" | "units" | "ai" | "notifications" | "server";
 
 export default function Settings() {
   const { toast } = useToast();
   const { language, setLanguage, theme, setTheme, unit, setUnit } = usePreferences();
 
+  const [apiUrl, setApiUrl] = useState<string>(
+    () => localStorage.getItem("settings_api_url") || "http://10.51.43.26:3000"
+  );
   const [aiSensitivity, setAiSensitivity] = useState<string>(
     () => localStorage.getItem("settings_ai_sensitivity") || "high"
   );
@@ -21,6 +24,14 @@ export default function Settings() {
   });
 
   const [activeTab, setActiveTab] = useState<TabId>("theme");
+
+  const saveApiUrl = () => {
+    localStorage.setItem("settings_api_url", apiUrl.trim());
+    toast({
+      title: "API URL Saved",
+      description: `Backend API server set to ${apiUrl.trim() || "http://10.51.43.26:3000"}`,
+    });
+  };
 
   // Apply theme class to HTML element
   const toggleTheme = (newTheme: "light" | "dark") => {
@@ -90,6 +101,7 @@ export default function Settings() {
     { id: "units", label: "diagnostic_units", icon: Sliders },
     { id: "ai", label: "ai_engine", icon: Cpu },
     { id: "notifications", label: "alerts_notifications", icon: Bell },
+    { id: "server", label: "API Server", icon: Server },
   ] as const;
 
   return (
@@ -391,6 +403,47 @@ export default function Settings() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 6. Server API Config Content */}
+            {activeTab === "server" && (
+              <div className="space-y-6">
+                <div className="max-w-2xl space-y-6">
+                  <div className="flex items-center gap-4 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/15 text-emerald-700 dark:text-emerald-400">
+                    <div className="p-2.5 rounded-lg bg-emerald-500/10">
+                      <Server className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold">Backend API Server URL</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Specify your Express backend API server address</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block">
+                      API Server Address
+                    </label>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="text"
+                        value={apiUrl}
+                        onChange={(e) => setApiUrl(e.target.value)}
+                        placeholder="http://10.51.43.26:3000"
+                        className="flex-1 h-12 px-4 rounded-xl border border-border bg-card text-foreground font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-xs text-sm"
+                      />
+                      <button
+                        onClick={saveApiUrl}
+                        className="h-12 px-6 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-opacity"
+                      >
+                        Save
+                      </button>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Default: <code className="bg-secondary px-1.5 py-0.5 rounded text-foreground font-mono">http://10.51.43.26:3000</code> (PC Wi-Fi IP).
+                    </p>
                   </div>
                 </div>
               </div>

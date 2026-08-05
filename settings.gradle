@@ -1,0 +1,5 @@
+rootProject.name = "osa-diagnostic-workspace"
+
+// Define authoritative Android subproject location
+include ':android'
+project(':android').projectDir = new File('artifacts/osa-diagnostic/android')

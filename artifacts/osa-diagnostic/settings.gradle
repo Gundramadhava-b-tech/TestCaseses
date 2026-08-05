@@ -1,0 +1,4 @@
+rootProject.name = "osa-diagnostic"
+
+include ':android'
+project(':android').projectDir = new File('android')
