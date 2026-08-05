@@ -2,7 +2,7 @@
 """
 Master Report, HTML Dashboard & Excel Generator for AeroDiag OSA Diagnostic System CI/CD Pipeline
 Generates:
-- build/reports/index.html (Sleek Dark Mode Dashboard matching Screenshots 1-4)
+- build/reports/index.html (Sleek Dark & Bright/Light Mode Interactive Dashboard)
 - build/reports/master_report.html
 - build/reports/master_report.xlsx (Multi-tab Excel Workbook ~235 KB)
 - build/reports/full_e2e_report.json (~5.93 KB)
@@ -134,7 +134,7 @@ def generate_excel_report(output_file, pipeline_jobs):
             f.write(b"PK\x03\x04" + b"\x00" * 235000)
 
 def generate_dashboard_html(output_file, pipeline_jobs):
-    """Generates the executive master dashboard HTML matching Screenshots 1-4."""
+    """Generates executive dashboard HTML with Dark & Bright/Light mode toggle."""
     sha = os.getenv("GITHUB_SHA", "7c2a61e")[:7]
     run_num = os.getenv("GITHUB_RUN_NUMBER", "8")
     timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -201,7 +201,7 @@ def generate_dashboard_html(output_file, pipeline_jobs):
     <title>AeroDiag — Executive Master Test Report</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {{
+        :root, html[data-theme="dark"] {{
             --bg: #0b0f19;
             --panel-bg: #111827;
             --card-bg: #1f2937;
@@ -217,6 +217,29 @@ def generate_dashboard_html(output_file, pipeline_jobs):
             --accent-pink: #ec4899;
             --accent-teal: #14b8a6;
             --accent-orange: #f97316;
+            --stats-bg: rgba(31, 41, 55, 0.5);
+            --table-header-bg: #1f2937;
+            --code-bg: #1e293b;
+        }}
+        html[data-theme="light"] {{
+            --bg: #f8fafc;
+            --panel-bg: #ffffff;
+            --card-bg: #f1f5f9;
+            --card-border: #cbd5e1;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --pass-color: #059669;
+            --fail-color: #dc2626;
+            --warn-color: #d97706;
+            --accent-blue: #2563eb;
+            --accent-indigo: #4f46e5;
+            --accent-purple: #7c3aed;
+            --accent-pink: #db2777;
+            --accent-teal: #0d9488;
+            --accent-orange: #ea580c;
+            --stats-bg: #f1f5f9;
+            --table-header-bg: #f8fafc;
+            --code-bg: #e2e8f0;
         }}
         body {{
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -224,6 +247,7 @@ def generate_dashboard_html(output_file, pipeline_jobs):
             color: var(--text-main);
             margin: 0;
             padding: 24px;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }}
         .container {{ max-width: 1280px; margin: 0 auto; }}
         header {{
@@ -235,25 +259,32 @@ def generate_dashboard_html(output_file, pipeline_jobs):
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }}
-        .header-title h1 {{ margin: 0 0 6px 0; font-size: 24px; color: #38bdf8; display: flex; align-items: center; gap: 10px; }}
+        .header-title h1 {{ margin: 0 0 6px 0; font-size: 24px; color: var(--accent-blue); display: flex; align-items: center; gap: 10px; }}
         .header-title p {{ margin: 0 0 12px 0; color: var(--text-muted); font-size: 14px; }}
         .meta-pills {{ display: flex; gap: 16px; font-size: 13px; color: var(--text-muted); }}
-        .meta-pills code {{ background: #1e293b; padding: 2px 8px; border-radius: 4px; color: #38bdf8; }}
+        .meta-pills code {{ background: var(--code-bg); padding: 2px 8px; border-radius: 4px; color: var(--accent-blue); font-weight: bold; }}
         .header-actions {{ display: flex; align-items: center; gap: 12px; }}
         .btn-theme {{
-            background: #1f2937;
+            background: var(--card-bg);
             border: 1px solid var(--card-border);
             color: var(--text-main);
-            padding: 8px 16px;
+            padding: 8px 18px;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
         }}
+        .btn-theme:hover {{ background: var(--card-border); }}
         .status-pill-lg {{
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-            border: 1px solid #10b981;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--pass-color);
+            border: 1px solid var(--pass-color);
             padding: 8px 20px;
             border-radius: 20px;
             font-weight: bold;
@@ -271,13 +302,14 @@ def generate_dashboard_html(output_file, pipeline_jobs):
             border: 1px solid var(--card-border);
             border-radius: 10px;
             padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
         }}
         .kpi-card .lbl {{ font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }}
         .kpi-card .val {{ font-size: 28px; font-weight: 800; }}
         .text-pass {{ color: var(--pass-color); }}
         .text-fail {{ color: var(--fail-color); }}
         .text-warn {{ color: var(--warn-color); }}
-        .text-accent {{ color: #8b5cf6; }}
+        .text-accent {{ color: var(--accent-purple); }}
         .font-bold {{ font-weight: bold; }}
 
         .charts-grid {{
@@ -291,6 +323,7 @@ def generate_dashboard_html(output_file, pipeline_jobs):
             border: 1px solid var(--card-border);
             border-radius: 12px;
             padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
         }}
         .chart-card h3 {{ margin: 0 0 16px 0; font-size: 16px; color: var(--text-main); display: flex; align-items: center; gap: 8px; }}
         .chart-container {{ position: relative; height: 260px; }}
@@ -301,7 +334,7 @@ def generate_dashboard_html(output_file, pipeline_jobs):
             align-items: center;
             margin-bottom: 16px;
         }}
-        .section-header h2 {{ margin: 0; font-size: 20px; display: flex; align-items: center; gap: 8px; }}
+        .section-header h2 {{ margin: 0; font-size: 20px; color: var(--text-main); display: flex; align-items: center; gap: 8px; }}
         .controls {{ display: flex; gap: 12px; }}
         .search-input {{
             background: var(--panel-bg);
@@ -332,35 +365,36 @@ def generate_dashboard_html(output_file, pipeline_jobs):
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
         }}
         .card-header {{ display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }}
         .suite-title {{ display: flex; gap: 12px; align-items: center; }}
         .suite-title .icon {{ font-size: 22px; }}
-        .suite-title h3 {{ margin: 0; font-size: 16px; }}
+        .suite-title h3 {{ margin: 0; font-size: 16px; color: var(--text-main); }}
         .run-sub {{ font-size: 12px; color: var(--text-muted); }}
-        .badge-pass {{ background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid #10b981; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 11px; }}
+        .badge-pass {{ background: rgba(16, 185, 129, 0.15); color: var(--pass-color); border: 1px solid var(--pass-color); padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 11px; }}
         
-        .card-stats {{ display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; margin-bottom: 16px; background: rgba(31, 41, 55, 0.5); padding: 12px; border-radius: 8px; }}
+        .card-stats {{ display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; margin-bottom: 16px; background: var(--stats-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--card-border); }}
         .card-stats .val {{ font-size: 18px; font-weight: bold; display: block; }}
         .card-stats .lbl {{ font-size: 10px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-top: 4px; display: block; }}
         
         .accent-bar {{ height: 4px; width: 100%; border-radius: 2px; margin-bottom: 16px; }}
         .card-footer {{ display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-muted); }}
-        .btn-html {{ background: #1f2937; border: 1px solid var(--card-border); color: #38bdf8; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; }}
-        .btn-html:hover {{ background: #374151; color: white; }}
+        .btn-html {{ background: var(--card-bg); border: 1px solid var(--card-border); color: var(--accent-blue); text-decoration: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; }}
+        .btn-html:hover {{ background: var(--card-border); }}
 
-        .table-card {{ background: var(--panel-bg); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; margin-bottom: 32px; }}
+        .table-card {{ background: var(--panel-bg); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; margin-bottom: 32px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02); }}
         table {{ width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }}
-        th {{ background: #1f2937; padding: 14px 18px; color: var(--text-muted); font-weight: 600; font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--card-border); }}
-        td {{ padding: 14px 18px; border-bottom: 1px solid var(--card-border); }}
+        th {{ background: var(--table-header-bg); padding: 14px 18px; color: var(--text-muted); font-weight: 600; font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--card-border); }}
+        td {{ padding: 14px 18px; border-bottom: 1px solid var(--card-border); color: var(--text-main); }}
         .suite-name {{ font-weight: 600; display: flex; align-items: center; gap: 8px; }}
         .progress-container {{ display: flex; align-items: center; gap: 10px; width: 140px; }}
         .progress-bar {{ height: 6px; border-radius: 3px; }}
         .progress-text {{ font-size: 12px; font-weight: 600; color: var(--text-muted); }}
-        .btn-html-sm {{ background: #1f2937; border: 1px solid var(--card-border); color: #38bdf8; text-decoration: none; padding: 4px 10px; border-radius: 4px; font-size: 12px; }}
+        .btn-html-sm {{ background: var(--card-bg); border: 1px solid var(--card-border); color: var(--accent-blue); text-decoration: none; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; }}
 
         footer {{ text-align: center; padding: 32px 0; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--card-border); margin-top: 40px; }}
-        footer a {{ color: #38bdf8; text-decoration: none; }}
+        footer a {{ color: var(--accent-blue); text-decoration: none; font-weight: bold; }}
     </style>
 </head>
 <body>
@@ -376,7 +410,7 @@ def generate_dashboard_html(output_file, pipeline_jobs):
                 </div>
             </div>
             <div class="header-actions">
-                <button class="btn-theme" onclick="toggleTheme()">🌙 Dark Mode</button>
+                <button class="btn-theme" id="themeToggleBtn" onclick="toggleTheme()">🌙 Dark Mode</button>
                 <div class="status-pill-lg">PASSED</div>
             </div>
         </header>
@@ -471,50 +505,95 @@ def generate_dashboard_html(output_file, pipeline_jobs):
     </div>
 
     <script>
-        // Donut Chart Initialization
-        const ctxOutcome = document.getElementById('outcomeChart').getContext('2d');
-        new Chart(ctxOutcome, {{
-            type: 'doughnut',
-            data: {{
-                labels: ['Passed', 'Failed', 'Skipped'],
-                datasets: [{{
-                    data: [{total_passed}, {total_failed}, {total_skipped}],
-                    backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
-                    borderWidth: 0
-                }}]
-            }},
-            options: {{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {{
-                    legend: {{ position: 'bottom', labels: {{ color: '#9ca3af' }} }}
-                }},
-                cutout: '70%'
-            }}
-        }});
+        let outcomeChartInstance = null;
+        let durationChartInstance = null;
 
-        // Duration Bar Chart Initialization
-        const ctxDuration = document.getElementById('durationChart').getContext('2d');
-        new Chart(ctxDuration, {{
-            type: 'bar',
-            data: {{
-                labels: ['Unit Tests API', 'Validation Tests', 'Selenium Web', 'Appium Android', 'Load Performance', 'Deployment Status'],
-                datasets: [{{
-                    label: 'Duration (sec)',
-                    data: [0.1, 0.2, 0.0, 0.3, 60.0, 0.0],
-                    backgroundColor: '#3b82f6',
-                    borderRadius: 4
-                }}]
-            }},
-            options: {{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {{ legend: {{ display: false }} }},
-                scales: {{
-                    x: {{ ticks: {{ color: '#9ca3af', fontSize: 10 }}, grid: {{ display: false }} }},
-                    y: {{ ticks: {{ color: '#9ca3af' }}, grid: {{ color: '#1f2937' }} }}
+        // Initialize Charts
+        function initCharts(isDark) {{
+            const textColor = isDark ? '#9ca3af' : '#64748b';
+            const gridColor = isDark ? '#1f2937' : '#e2e8f0';
+
+            const ctxOutcome = document.getElementById('outcomeChart').getContext('2d');
+            outcomeChartInstance = new Chart(ctxOutcome, {{
+                type: 'doughnut',
+                data: {{
+                    labels: ['Passed', 'Failed', 'Skipped'],
+                    datasets: [{{
+                        data: [{total_passed}, {total_failed}, {total_skipped}],
+                        backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+                        borderWidth: 0
+                    }}]
+                }},
+                options: {{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {{
+                        legend: {{ position: 'bottom', labels: {{ color: textColor }} }}
+                    }},
+                    cutout: '70%'
                 }}
+            }});
+
+            const ctxDuration = document.getElementById('durationChart').getContext('2d');
+            durationChartInstance = new Chart(ctxDuration, {{
+                type: 'bar',
+                data: {{
+                    labels: ['Unit Tests API', 'Validation Tests', 'Selenium Web', 'Appium Android', 'Load Performance', 'Deployment Status'],
+                    datasets: [{{
+                        label: 'Duration (sec)',
+                        data: [0.1, 0.2, 0.0, 0.3, 60.0, 0.0],
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    }}]
+                }},
+                options: {{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {{ legend: {{ display: false }} }},
+                    scales: {{
+                        x: {{ ticks: {{ color: textColor, fontSize: 10 }}, grid: {{ display: false }} }},
+                        y: {{ ticks: {{ color: textColor }}, grid: {{ color: gridColor }} }}
+                    }}
+                }}
+            }});
+        }}
+
+        function toggleTheme() {{
+            const htmlEl = document.documentElement;
+            const current = htmlEl.getAttribute('data-theme') || 'dark';
+            const next = current === 'dark' ? 'light' : 'dark';
+            htmlEl.setAttribute('data-theme', next);
+            localStorage.setItem('aerodiag_theme', next);
+            
+            const btn = document.getElementById('themeToggleBtn');
+            if (btn) {{
+                btn.innerHTML = next === 'dark' ? '🌙 Dark Mode' : '☀️ Bright Mode';
             }}
+
+            const textColor = next === 'dark' ? '#9ca3af' : '#64748b';
+            const gridColor = next === 'dark' ? '#1f2937' : '#e2e8f0';
+
+            if (outcomeChartInstance) {{
+                outcomeChartInstance.options.plugins.legend.labels.color = textColor;
+                outcomeChartInstance.update();
+            }}
+            if (durationChartInstance) {{
+                durationChartInstance.options.scales.x.ticks.color = textColor;
+                durationChartInstance.options.scales.y.ticks.color = textColor;
+                durationChartInstance.options.scales.y.grid.color = gridColor;
+                durationChartInstance.update();
+            }}
+        }}
+
+        // On Load Theme Restore
+        document.addEventListener('DOMContentLoaded', () => {{
+            const savedTheme = localStorage.getItem('aerodiag_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            const btn = document.getElementById('themeToggleBtn');
+            if (btn) {{
+                btn.innerHTML = savedTheme === 'dark' ? '🌙 Dark Mode' : '☀️ Bright Mode';
+            }}
+            initCharts(savedTheme === 'dark');
         }});
 
         function filterSuites() {{
@@ -542,11 +621,6 @@ def generate_dashboard_html(output_file, pipeline_jobs):
                 }}
             }});
         }}
-
-        function toggleTheme() {{
-            const current = document.documentElement.getAttribute('data-theme');
-            document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
-        }}
     </script>
 </body>
 </html>
@@ -561,7 +635,6 @@ def main():
     out_dir = Path("build/reports")
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Copy suite html reports
     copy_suite_html_reports(out_dir)
 
     pipeline_jobs = [
