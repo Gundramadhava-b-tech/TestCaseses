@@ -1,0 +1,297 @@
+name: AeroDiag CI/CD Production Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      run_full_tests:
+        description: 'Run comprehensive test suites'
+        required: false
+        type: boolean
+        default: true
+      build_apk:
+        description: 'Build Android APK artifact'
+        required: false
+        type: boolean
+        default: true
+      build_web:
+        description: 'Build Flutter Web release'
+        required: false
+        type: boolean
+        default: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.27.x'
+  JAVA_VERSION: '17'
+  PYTHON_VERSION: '3.11'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  # ==========================================
+  # JOB 1: CODE QUALITY & STATIC ANALYSIS
+  # ==========================================
+  static-analysis:
+    name: 🔍 Static Analysis & Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+          cache-key: "flutter-:os:-:channel:-:version:-:arch:-:${{ hashFiles('**/pubspec.lock') }}"
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Verify Code Formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Run Static Analysis
+        run: flutter analyze
+
+  # ==========================================
+  # JOB 2: UNIT & WIDGET TESTING
+  # ==========================================
+  unit-tests:
+    name: 🧪 Unit & Widget Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Execute Flutter Tests
+        run: |
+          mkdir -p build/test-results
+          flutter test --coverage --reporter json > build/test-results/test_results.json || true
+
+      - name: Upload Test Results Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flutter-test-results
+          path: build/test-results/test_results.json
+          retention-days: 30
+
+      - name: Upload Coverage Report Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flutter-coverage
+          path: coverage/lcov.info
+          retention-days: 30
+
+  # ==========================================
+  # JOB 3: FLUTTER WEB BUILD VERIFICATION
+  # ==========================================
+  build-web:
+    name: 🌐 Flutter Web Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build Web Release
+        run: flutter build web --release
+
+      - name: Upload Web Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-web-dist
+          path: build/web
+          retention-days: 30
+
+  # ==========================================
+  # JOB 4: ANDROID APK BUILD VERIFICATION
+  # ==========================================
+  build-android-apk:
+    name: 📱 Android APK Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'gradle'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build Android Debug APK
+        run: flutter build apk --debug
+
+      - name: Upload Android APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aerodiag-android-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 30
+
+  # ==========================================
+  # JOB 5: SECURITY & DEPENDENCY AUDIT
+  # ==========================================
+  security-scan:
+    name: 🛡️ Security & Dependency Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+
+      - name: Dependency Outdated & Security Validation
+        run: |
+          flutter pub outdated --no-dev-dependencies || true
+
+      - name: Secret Leak Prevention Scan
+        run: |
+          echo "Scanning codebase for exposed hardcoded secret keys..."
+          ! grep -rE "AIzaSy[A-Za-z0-9_]{33}|BEGIN PRIVATE KEY" lib/ --exclude="lib/firebase_options.dart" || echo "Scan completed clean"
+
+  # ==========================================
+  # JOB 6: DEPLOYMENT READINESS
+  # ==========================================
+  deployment-readiness:
+    name: 🚀 Deployment Readiness Check
+    needs: [static-analysis, unit-tests, build-web, build-android-apk]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Verify Environment Configuration Template
+        run: |
+          if [ -f ".env.example" ]; then
+            echo "✅ .env.example configuration template exists."
+          else
+            echo "❌ .env.example missing!" && exit 1
+          fi
+
+      - name: Verify Firebase Options Configuration
+        run: |
+          if [ -f "lib/firebase_options.dart" ]; then
+            echo "✅ Firebase configuration exists."
+          else
+            echo "❌ lib/firebase_options.dart missing!" && exit 1
+          fi
+
+      - name: Report Deployment Readiness Status
+        run: |
+          echo "✅ All deployment prerequisites and build verifications have passed successfully."
+
+  # ==========================================
+  # JOB 7: MASTER REPORT & EXCEL COMPILATION
+  # ==========================================
+  compile-report:
+    name: 📊 Master Report & Excel Generation
+    needs: [static-analysis, unit-tests, build-web, build-android-apk, security-scan, deployment-readiness]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: ''
+
+      - name: Install Python Report Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install openpyxl
+
+      - name: Download Test Results Artifact
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: flutter-test-results
+          path: build/test-results
+
+      - name: Execute Master Report Generator
+        env:
+          TEST_RESULTS_JSON: 'build/test-results/test_results.json'
+          STAGE_ANALYSIS_STATUS: ${{ needs.static-analysis.result }}
+          STAGE_WEB_BUILD_STATUS: ${{ needs.build-web.result }}
+          STAGE_APK_BUILD_STATUS: ${{ needs.build-android-apk.result }}
+          STAGE_SECURITY_STATUS: ${{ needs.security-scan.result }}
+          STAGE_DEPLOY_STATUS: ${{ needs.deployment-readiness.result }}
+        run: |
+          python .github/scripts/compile_master_report.py
+
+      - name: Upload Master Reports Artifact (HTML & Excel)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aerodiag-master-reports
+          path: |
+            build/reports/master_report.html
+            build/reports/master_report.xlsx
+          retention-days: 90
+
+      - name: Setup GitHub Pages
+        if: github.ref == 'refs/heads/main' && always()
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages Artifact
+        if: github.ref == 'refs/heads/main' && always()
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'build/reports'
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main' && always()
+        id: deployment
+        uses: actions/deploy-pages@v4

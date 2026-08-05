@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "89195461304",
+    "project_id": "osadiagnosticsys",
+    "storage_bucket": "osadiagnosticsys.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:89195461304:android:fe3f6862cc9ce20817124d",
+        "android_client_info": {
+          "package_name": "com.osa.diagnostic"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9Q1PWU_0EDunVtowxK4KFsQbIGlSCamo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
