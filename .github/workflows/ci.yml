@@ -163,10 +163,17 @@ jobs:
         with:
           name: full-e2e-report
           path: build/reports/full_e2e_report.json
+      - name: Upload GitHub Pages Artifact (~6.09 KB)
+        uses: actions/upload-artifact@v4
+        with:
+          name: github-pages
+          path: build/reports
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
         continue-on-error: true
-      - name: Upload Pages Artifact (~6.09 KB)
+        with:
+          enablement: true
+      - name: Upload Pages Deployment Artifact
         uses: actions/upload-pages-artifact@v3
         continue-on-error: true
         with:
