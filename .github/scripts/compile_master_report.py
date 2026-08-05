@@ -567,7 +567,7 @@ def generate_dashboard_html(output_file, pipeline_jobs):
             
             const btn = document.getElementById('themeToggleBtn');
             if (btn) {{
-                btn.innerHTML = next === 'dark' ? '🌙 Dark Mode' : '☀️ Bright Mode';
+                btn.innerHTML = next === 'dark' ? '☀️ Bright Mode' : '🌙 Dark Mode';
             }}
 
             const textColor = next === 'dark' ? '#9ca3af' : '#64748b';
@@ -591,7 +591,7 @@ def generate_dashboard_html(output_file, pipeline_jobs):
             document.documentElement.setAttribute('data-theme', savedTheme);
             const btn = document.getElementById('themeToggleBtn');
             if (btn) {{
-                btn.innerHTML = savedTheme === 'dark' ? '🌙 Dark Mode' : '☀️ Bright Mode';
+                btn.innerHTML = savedTheme === 'dark' ? '☀️ Bright Mode' : '🌙 Dark Mode';
             }}
             initCharts(savedTheme === 'dark');
         }});
