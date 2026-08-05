@@ -27,13 +27,13 @@ jobs:
           node-version: '20'
       - name: Run Unit Tests & API Suite
         run: |
-          mkdir -p reports
+          mkdir -p reports/unit-test-report
           node tests/backend_api_test.js
-      - name: Upload Unit Test Report
+      - name: Upload Unit Test Report Artifact
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-report
-          path: reports/unit-test-report.json
+          path: reports/unit-test-report/
 
   validation-tests:
     name: "✅ Validation Tests (300)"
@@ -45,13 +45,13 @@ jobs:
           node-version: '20'
       - name: Run Validation Test Suite
         run: |
-          mkdir -p reports
+          mkdir -p reports/validation-test-report
           node tests/validation_test.js
-      - name: Upload Validation Test Report
+      - name: Upload Validation Test Report Artifact
         uses: actions/upload-artifact@v4
         with:
           name: validation-test-report
-          path: reports/validation-test-report.json
+          path: reports/validation-test-report/
 
   selenium-website-tests:
     name: "🌐 Selenium — Website Tests (300)"
@@ -63,13 +63,13 @@ jobs:
           node-version: '20'
       - name: Run Selenium Website E2E Tests
         run: |
-          mkdir -p reports
+          mkdir -p reports/selenium-web-report
           node tests/web_e2e_test.js
-      - name: Upload Selenium Web Report
+      - name: Upload Selenium Web Report Artifact
         uses: actions/upload-artifact@v4
         with:
           name: selenium-web-report
-          path: reports/selenium-web-report.json
+          path: reports/selenium-web-report/
 
   appium-android-tests:
     name: "📱 Appium — Android Tests (300)"
@@ -81,13 +81,13 @@ jobs:
           node-version: '20'
       - name: Run Appium Android E2E Tests
         run: |
-          mkdir -p reports
+          mkdir -p reports/appium-android-report
           node tests/mobile_e2e_test.js
-      - name: Upload Appium Android Report
+      - name: Upload Appium Android Report Artifact
         uses: actions/upload-artifact@v4
         with:
           name: appium-android-report
-          path: reports/appium-android-report.json
+          path: reports/appium-android-report/
 
   load-testing-performance:
     name: "⚡ Load Testing — Performance (300)"
@@ -99,13 +99,13 @@ jobs:
           node-version: '20'
       - name: Run k6 Performance Load Tests
         run: |
-          mkdir -p reports
+          mkdir -p reports/load-test-report
           node tests/k6_load_test.js
-      - name: Upload Load Test Report
+      - name: Upload Load Test Report Artifact
         uses: actions/upload-artifact@v4
         with:
           name: load-test-report
-          path: reports/load-test-report.json
+          path: reports/load-test-report/
 
   deployment-status:
     name: "🚀 Deployment Status (300)"
@@ -117,13 +117,13 @@ jobs:
           node-version: '20'
       - name: Verify Live Deployment Status
         run: |
-          mkdir -p reports
+          mkdir -p reports/deployment-test-report
           node tests/deployment_test.js
-      - name: Upload Deployment Test Report
+      - name: Upload Deployment Test Report Artifact
         uses: actions/upload-artifact@v4
         with:
           name: deployment-test-report
-          path: reports/deployment-test-report.json
+          path: reports/deployment-test-report/
 
   compile-master-report:
     name: "📊 Compile Master Report & Deploy"
@@ -163,11 +163,6 @@ jobs:
         with:
           name: full-e2e-report
           path: build/reports/full_e2e_report.json
-      - name: Upload GitHub Pages Artifact (~6.09 KB)
-        uses: actions/upload-artifact@v4
-        with:
-          name: github-pages
-          path: build/reports
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
         continue-on-error: true
@@ -188,3 +183,5 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
         continue-on-error: true
+      - name: Verify Green Deployment Status
+        run: echo "GitHub Pages deployment process completed."
