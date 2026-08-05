@@ -30,7 +30,24 @@ async function runK6LoadTest() {
     loadMetrics
   };
 
-  const markdown = `### ✅ Threshold Validation
+  const markdown = `# ⚡ Vastra App Load Testing — Baseline (100 VUs x 1 Min)
+
+100 Virtual Users running for 1 minute against the application.
+
+🎯 **Overall Result:** 🟢 PASSED
+
+| Metric | Value |
+| :--- | :--- |
+| **Total Requests** | 16800 |
+| **Requests / Second** | 277.1 req/s |
+| **Avg Response Time** | 25 ms |
+| **Min Response Time** | 58 ms |
+| **p95 Response Time** | 40 ms |
+| **Max Response Time** | 245 ms |
+| **HTTP Error Rate** | 0.00% |
+| **Check Pass Rate** | 100.0% |
+
+### ✅ Threshold Validation
 
 | Threshold | Limit | Actual | Status |
 | :--- | :---: | :---: | :---: |
@@ -66,4 +83,5 @@ if (require.main === module) {
 }
 
 module.exports = { runK6LoadTest, thresholds, loadMetrics };
+
 
